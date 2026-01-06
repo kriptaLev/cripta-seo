@@ -1,4 +1,4 @@
-name: Generate SEO pages
+name: Generate SEO Articles
 
 on:
   workflow_dispatch:
@@ -8,31 +8,85 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Create pages from content.txt
+      - name: Generate articles
         run: |
           rm -rf pages
           mkdir pages
 
-          awk '
-          /^===FILE:/ {
-            if (out) close(out)
-            filename=$2
-            gsub("===","",filename)
-            out="pages/" filename
-            next
-          }
-          {
-            if (out) print > out
-          }
-          ' content.txt
+          i=1
+          while read title; do
+            slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^а-яa-z0-9 ]//g' | sed 's/ /-/g')
+
+            {
+              echo "# $title"
+              echo
+              echo "## Описание"
+              sed 's/^/ /' content.txt
+              echo
+              echo "## Что важно знать"
+              sed 's/^/ /' content.txt
+              echo
+              echo "## Частые вопросы"
+              sed 's/^/ /' content.txt
+            } > pages/page-$i.md
+
+            i=$((i+1))
+          done <<EOF
+биткоин что это
+биткоин прогноз на неделю
+криптовалюты для новичков
+как купить биткоин
+что такое блокчейн
+ethereum что это
+solana обзор
+toncoin перспективы
+криптовалюта и налоги
+лучшие криптобиржи
+как выбрать криптокошелёк
+холодный кошелёк что это
+горячий кошелёк что это
+криптовалюта в россии
+криптовалюта в 2025 году
+инвестиции в крипту
+риски криптовалют
+nft что это
+defi что это
+airdrops криптовалют
+как заработать на крипте
+майнинг что это
+стейкинг что это
+трейдинг криптовалют
+биткоин или эфир
+altcoins что это
+лучшие альткоины
+крипторынок сегодня
+падение биткоина причины
+рост биткоина причины
+как хранить криптовалюту
+безопасность криптовалют
+скам в крипте
+как не потерять крипту
+криптовалюта для чайников
+web3 что это
+DAO что это
+layer 2 что это
+gas fee что это
+криптовалюта и банки
+регулирование крипты
+крипта и санкции
+будущее криптовалют
+крипта для заработка
+пассивный доход крипта
+лучшие криптопроекты
+крипта простыми словами
+EOF
 
       - name: Commit pages
         run: |
           git config user.name "seo-bot"
-          git config user.email "seo-bot@users.noreply.github.com"
+          git config user.email "seo@bot.com"
           git add pages
-          git commit -m "Auto-generate SEO articles" || echo "Nothing to commit"
+          git commit -m "Generate 50 SEO articles" || echo "Nothing to commit"
           git push
