@@ -1,57 +1,38 @@
 name: Generate SEO pages
 
-permissions:
-  contents: write
-  
 on:
   workflow_dispatch:
-  push:
 
 jobs:
   generate:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Debug files
+      - name: Create pages from content.txt
         run: |
-          echo "Files in repo:"
-          ls -la
-          echo "keywords.txt content:"
-          cat keywords.txt || echo "NO KEYWORDS FILE"
+          rm -rf pages
+          mkdir pages
 
-      - name: Generate pages
-        run: |
-          mkdir -p pages
-          n=0
-
-          while IFS= read -r keyword; do
-            if [ -z "$keyword" ]; then
-              continue
-            fi
-
-            n=$((n+1))
-            file="pages/page-$n.md"
-
-            echo "# $keyword" > "$file"
-            echo "" >> "$file"
-            echo "SEO статья по запросу: $keyword" >> "$file"
-            echo "" >> "$file"
-            echo "## Описание" >> "$file"
-            echo "Подробный разбор темы $keyword для русскоязычной аудитории." >> "$file"
-            echo "" >> "$file"
-            echo "## Полезные ссылки" >> "$file"
-            echo "👉 https://example.com" >> "$file"
-
-          done < keywords.txt
-
-          echo "Generated $n pages"
+          awk '
+          /^===FILE:/ {
+            if (out) close(out)
+            filename=$2
+            gsub("===","",filename)
+            out="pages/" filename
+            next
+          }
+          {
+            if (out) print > out
+          }
+          ' content.txt
 
       - name: Commit pages
         run: |
           git config user.name "seo-bot"
-          git config user.email "seo@bot.com"
+          git config user.email "seo-bot@users.noreply.github.com"
           git add pages
-          git commit -m "Auto-generate SEO pages" || echo "Nothing to commit"
+          git commit -m "Auto-generate SEO articles" || echo "Nothing to commit"
           git push
