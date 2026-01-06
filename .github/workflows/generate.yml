@@ -8,26 +8,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Generate pages
         run: |
           mkdir -p pages
-          while read keyword; do
-            slug=$(echo "$keyword" | tr '[:upper:]' '[:lower:]' | sed 's/[^а-яa-z0-9 ]//g' | sed 's/ /-/g')
+          i=0
+          while IFS= read -r keyword || [ -n "$keyword" ]; do
+            i=$((i+1))
+            slug="page-$i"
             file="pages/$slug.md"
 
-            cp template.md "$file"
-            sed -i "s/{{TITLE}}/$keyword/g" "$file"
-            sed -i "s/{{KEYWORD}}/$keyword/g" "$file"
-            sed -i "s/{{INTRO}}/Подробный и актуальный разбор запроса \"$keyword\" для русскоязычной аудитории./g" "$file"
-            sed -i "s/{{SECTION1}}/В этом разделе объясняется суть запроса $keyword и почему он интересен пользователям./g" "$file"
-            sed -i "s/{{SECTION2}}/Здесь простым языком описывается, как работает тема $keyword./g" "$file"
-            sed -i "s/{{SECTION3}}/Пошаговое объяснение для новичков по теме $keyword без сложных терминов./g" "$file"
-            sed -i "s/{{SECTION4}}/Рассматриваются плюсы и возможные ограничения, связанные с $keyword./g" "$file"
-            sed -i "s/{{FAQ}}/Ответы на популярные вопросы, которые ищут по запросу $keyword./g" "$file"
-            sed -i "s|{{TG_LINK}}|#|g" "$file"
+            cat <<EOF > "$file"
+# $keyword
+
+Подробный и актуальный разбор запроса "$keyword" для русскоязычной аудитории.
+
+## Что это такое
+Объяснение темы: $keyword.
+
+## Как работает
+Простое объяснение без сложных терминов.
+
+## Плюсы и минусы
+Преимущества и ограничения.
+
+## Частые вопросы
+Ответы на популярные вопросы.
+
+👉 Подробнее: https://example.com
+EOF
 
           done < keywords.txt
 
@@ -36,5 +46,5 @@ jobs:
           git config user.name "seo-bot"
           git config user.email "seo@bot.com"
           git add pages
-          git commit -m "Auto-generate SEO pages"
+          git commit -m "Auto-generate SEO pages" || echo "Nothing to commit"
           git push
