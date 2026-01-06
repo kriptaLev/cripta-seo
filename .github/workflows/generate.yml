@@ -2,9 +2,10 @@ name: Generate Pages
 
 on:
   workflow_dispatch:
-
-permissions:
-  contents: write
+  push:
+    paths:
+      - keywords.txt
+      - template.md
 
 jobs:
   generate:
@@ -14,23 +15,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Create pages directory
-        run: mkdir -p pages
-
-      - name: Generate 50 pages
+      - name: Generate SEO pages
         run: |
-          for i in $(seq 1 50); do
-            echo "# Статья $i" > pages/page-$i.md
-            echo "" >> pages/page-$i.md
-            echo "Это тестовая статья номер $i." >> pages/page-$i.md
-            echo "" >> pages/page-$i.md
-            echo "Автоматизация работает." >> pages/page-$i.md
-          done
+          mkdir -p pages
+          i=1
+          while IFS= read -r keyword
+          do
+            [ -z "$keyword" ] && continue
+
+            filename="pages/page-$i.md"
+
+            sed "s/{{TITLE}}/$keyword/g" template.md > "$filename"
+
+            echo "Created $filename"
+            i=$((i+1))
+          done < keywords.txt
 
       - name: Commit and push
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add pages
-          git commit -m "Regenerate pages" || echo "Nothing to commit"
+          git commit -m "Auto-generate SEO pages" || echo "No changes"
           git push
