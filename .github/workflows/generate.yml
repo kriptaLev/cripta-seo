@@ -3,6 +3,9 @@ name: Generate Pages
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -21,7 +24,7 @@ jobs:
             echo "" >> pages/page-$i.md
             echo "Это тестовая статья номер $i." >> pages/page-$i.md
             echo "" >> pages/page-$i.md
-            echo "Если ты это видишь — автоматизация РАБОТАЕТ." >> pages/page-$i.md
+            echo "Автоматизация работает." >> pages/page-$i.md
           done
 
       - name: Commit and push
@@ -29,5 +32,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add pages
-          git commit -m "Generate 50 pages" || echo "Nothing to commit"
+          git commit -m "Regenerate pages" || echo "Nothing to commit"
           git push
