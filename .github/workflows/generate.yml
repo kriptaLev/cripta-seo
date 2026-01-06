@@ -2,6 +2,7 @@ name: Generate SEO pages
 
 on:
   workflow_dispatch:
+  push:
 
 jobs:
   generate:
@@ -10,36 +11,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug files
+        run: |
+          echo "Files in repo:"
+          ls -la
+          echo "keywords.txt content:"
+          cat keywords.txt || echo "NO KEYWORDS FILE"
+
       - name: Generate pages
         run: |
           mkdir -p pages
-          i=0
-          while IFS= read -r keyword || [ -n "$keyword" ]; do
-            i=$((i+1))
-            slug="page-$i"
-            file="pages/$slug.md"
+          n=0
 
-            cat <<EOF > "$file"
-# $keyword
+          while IFS= read -r keyword; do
+            if [ -z "$keyword" ]; then
+              continue
+            fi
 
-Подробный и актуальный разбор запроса "$keyword" для русскоязычной аудитории.
+            n=$((n+1))
+            file="pages/page-$n.md"
 
-## Что это такое
-Объяснение темы: $keyword.
-
-## Как работает
-Простое объяснение без сложных терминов.
-
-## Плюсы и минусы
-Преимущества и ограничения.
-
-## Частые вопросы
-Ответы на популярные вопросы.
-
-👉 Подробнее: https://example.com
-EOF
+            echo "# $keyword" > "$file"
+            echo "" >> "$file"
+            echo "SEO статья по запросу: $keyword" >> "$file"
+            echo "" >> "$file"
+            echo "## Описание" >> "$file"
+            echo "Подробный разбор темы $keyword для русскоязычной аудитории." >> "$file"
+            echo "" >> "$file"
+            echo "## Полезные ссылки" >> "$file"
+            echo "👉 https://example.com" >> "$file"
 
           done < keywords.txt
+
+          echo "Generated $n pages"
 
       - name: Commit pages
         run: |
