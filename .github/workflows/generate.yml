@@ -9,7 +9,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      
+      - name: Create pages directory
+        run: mkdir -p pages
+        
       - name: Generate articles
         run: |
           rm -rf pages
