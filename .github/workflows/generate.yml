@@ -14,7 +14,6 @@ jobs:
       - name: Generate pages
         run: |
           mkdir -p pages
-          i=1
           while read keyword; do
             slug=$(echo "$keyword" | tr '[:upper:]' '[:lower:]' | sed 's/[^а-яa-z0-9 ]//g' | sed 's/ /-/g')
             file="pages/$slug.md"
@@ -22,15 +21,14 @@ jobs:
             cp template.md "$file"
             sed -i "s/{{TITLE}}/$keyword/g" "$file"
             sed -i "s/{{KEYWORD}}/$keyword/g" "$file"
-            sed -i "s/{{INTRO}}/Подробный разбор запроса \"$keyword\" для русскоязычной аудитории./g" "$file"
-            sed -i "s/{{SECTION1}}/В этом разделе мы объясняем, что означает $keyword и почему этот запрос популярен./g" "$file"
-            sed -i "s/{{SECTION2}}/Принцип работы $keyword описан простым языком без сложных терминов./g" "$file"
-            sed -i "s/{{SECTION3}}/Пошаговая инструкция для новичков по теме $keyword./g" "$file"
-            sed -i "s/{{SECTION4}}/Рассмотрим преимущества и возможные ограничения, связанные с $keyword./g" "$file"
-            sed -i "s/{{FAQ}}/Ответы на частые вопросы по запросу $keyword./g" "$file"
-            sed -i "s|{{TG_LINK}}|https://t.me/yourchannel|g" "$file"
+            sed -i "s/{{INTRO}}/Подробный и актуальный разбор запроса \"$keyword\" для русскоязычной аудитории./g" "$file"
+            sed -i "s/{{SECTION1}}/В этом разделе объясняется суть запроса $keyword и почему он интересен пользователям./g" "$file"
+            sed -i "s/{{SECTION2}}/Здесь простым языком описывается, как работает тема $keyword./g" "$file"
+            sed -i "s/{{SECTION3}}/Пошаговое объяснение для новичков по теме $keyword без сложных терминов./g" "$file"
+            sed -i "s/{{SECTION4}}/Рассматриваются плюсы и возможные ограничения, связанные с $keyword./g" "$file"
+            sed -i "s/{{FAQ}}/Ответы на популярные вопросы, которые ищут по запросу $keyword./g" "$file"
+            sed -i "s|{{TG_LINK}}|#|g" "$file"
 
-            i=$((i+1))
           done < keywords.txt
 
       - name: Commit pages
