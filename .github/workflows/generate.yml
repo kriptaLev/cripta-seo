@@ -1,4 +1,4 @@
-name: Generate SEO Articles
+name: Generate Pages
 
 on:
   workflow_dispatch:
@@ -8,88 +8,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Create pages directory
         run: mkdir -p pages
-        
-      - name: Generate articles
+
+      - name: Generate 50 pages
         run: |
-          rm -rf pages
-          mkdir pages
+          for i in $(seq 1 50); do
+            echo "# Статья $i" > pages/page-$i.md
+            echo "" >> pages/page-$i.md
+            echo "Это тестовая статья номер $i." >> pages/page-$i.md
+            echo "" >> pages/page-$i.md
+            echo "Если ты это видишь — автоматизация РАБОТАЕТ." >> pages/page-$i.md
+          done
 
-          i=1
-          while read title; do
-            slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^а-яa-z0-9 ]//g' | sed 's/ /-/g')
-
-            {
-              echo "# $title"
-              echo
-              echo "## Описание"
-              sed 's/^/ /' content.txt
-              echo
-              echo "## Что важно знать"
-              sed 's/^/ /' content.txt
-              echo
-              echo "## Частые вопросы"
-              sed 's/^/ /' content.txt
-            } > pages/page-$i.md
-
-            i=$((i+1))
-          done <<EOF
-биткоин что это
-биткоин прогноз на неделю
-криптовалюты для новичков
-как купить биткоин
-что такое блокчейн
-ethereum что это
-solana обзор
-toncoin перспективы
-криптовалюта и налоги
-лучшие криптобиржи
-как выбрать криптокошелёк
-холодный кошелёк что это
-горячий кошелёк что это
-криптовалюта в россии
-криптовалюта в 2025 году
-инвестиции в крипту
-риски криптовалют
-nft что это
-defi что это
-airdrops криптовалют
-как заработать на крипте
-майнинг что это
-стейкинг что это
-трейдинг криптовалют
-биткоин или эфир
-altcoins что это
-лучшие альткоины
-крипторынок сегодня
-падение биткоина причины
-рост биткоина причины
-как хранить криптовалюту
-безопасность криптовалют
-скам в крипте
-как не потерять крипту
-криптовалюта для чайников
-web3 что это
-DAO что это
-layer 2 что это
-gas fee что это
-криптовалюта и банки
-регулирование крипты
-крипта и санкции
-будущее криптовалют
-крипта для заработка
-пассивный доход крипта
-лучшие криптопроекты
-крипта простыми словами
-EOF
-
-      - name: Commit pages
+      - name: Commit and push
         run: |
-          git config user.name "seo-bot"
-          git config user.email "seo@bot.com"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
           git add pages
-          git commit -m "Generate 50 SEO articles" || echo "Nothing to commit"
+          git commit -m "Generate 50 pages" || echo "Nothing to commit"
           git push
