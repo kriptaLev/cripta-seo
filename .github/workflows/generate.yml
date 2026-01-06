@@ -1,5 +1,8 @@
 name: Generate SEO pages
 
+permissions:
+  contents: write
+  
 on:
   workflow_dispatch:
   push:
