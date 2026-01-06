@@ -7,6 +7,9 @@ on:
       - keywords.txt
       - template.md
 
+permissions:
+  contents: write   # ← ВОТ ЭТО КРИТИЧЕСКИ ВАЖНО
+
 jobs:
   generate:
     runs-on: ubuntu-latest
